@@ -38,7 +38,8 @@ The variables included in this dataset are:
 
 The data is downloaded, uncompressed, and loaded into a data frame table using **dplyr** package.
 
-```{r, echo=TRUE, results="hide", message=FALSE}
+
+```r
   ### Load dplyr package for easy data manipulation (install if needed)
   if (! require("dplyr")) {
     install.packages('dplyr'); 
@@ -46,7 +47,8 @@ The data is downloaded, uncompressed, and loaded into a data frame table using *
   }
 ```
 
-```{r load_data, echo=TRUE}
+
+```r
 ### Download file and load into a dataframe table 
 download.file(url = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", 
               destfile = "./activity.zip")
@@ -57,16 +59,39 @@ myTable <- tbl_df(read.csv("./activity.csv"))
 ```
 
 Example of records:
-```{r view_data, echo=TRUE}
+
+```r
 ### view few records of sample data to see data is loaded
 myTable
 ```
 
+```
+## Source: local data frame [17,568 x 3]
+## 
+##    steps       date interval
+##    (int)     (fctr)    (int)
+## 1     NA 2012-10-01        0
+## 2     NA 2012-10-01        5
+## 3     NA 2012-10-01       10
+## 4     NA 2012-10-01       15
+## 5     NA 2012-10-01       20
+## 6     NA 2012-10-01       25
+## 7     NA 2012-10-01       30
+## 8     NA 2012-10-01       35
+## 9     NA 2012-10-01       40
+## 10    NA 2012-10-01       45
+## ..   ...        ...      ...
+```
+
 Number of rows and columns:
-```{r count_data, echo=TRUE}
+
+```r
 ### check count to see all 17,568 observations are loaded
 dim(myTable)
+```
 
+```
+## [1] 17568     3
 ```
 
   
@@ -75,8 +100,8 @@ dim(myTable)
   
 To analyze the data at the day level, the dataset is summarized at the date level. The observations with missing values were ignored. The total number of steps by date is calculated and then derived the mean and median of that total number of steps. 
     
-```{r sum_by_day, echo=TRUE}    
 
+```r
     ### 1. Calculate the total number of steps taken per day
     stepsByDay <-
         myTable %>%
@@ -88,17 +113,19 @@ To analyze the data at the day level, the dataset is summarized at the date leve
     hist(stepsByDay$totalSteps, main='Total Number of Steps Taken Each Day', xlab = 'Number of Steps')
 ```
 
-```{r calc_mean, echo=TRUE, results="hide"}  
+![plot of chunk sum_by_day](figure/sum_by_day-1.png) 
+
+
+```r
     ### 3a. Calculate the mean of the total number of steps taken per day
     meanSteps <- format(round(mean(stepsByDay$totalSteps, na.rm = TRUE), 2), nsmall = 2)
     
     ### 3b. Calculate the  median of the total number of steps taken per day
     medianSteps <- median(stepsByDay$totalSteps, na.rm = TRUE)
-    
-```    
+```
   
-The mean total number of steps taken per day is : `r meanSteps`  
-The median total number of steps taken per day is : `r medianSteps`  
+The mean total number of steps taken per day is : 10766.19  
+The median total number of steps taken per day is : 10765  
     
 
 
@@ -107,7 +134,8 @@ The median total number of steps taken per day is : `r medianSteps`
 To analyze the daily activity pattern, the dataset is summarized at the 5-minute interval level. The observations with missing values were ignored. The total number of steps by 5-minute interval is calculated and then derived the 5-minute interval with the maximum number of steps.  
 
   
-```{r by_interval, echo=TRUE, }
+
+```r
     ### 1. summarize number of steps by 5-minute interval
     stepsByInterval <-
         myTable %>%
@@ -123,32 +151,32 @@ To analyze the daily activity pattern, the dataset is summarized at the 5-minute
          main = 'Average Daily Activity Pattern')
 ```
 
-```{r max_steps, echo=TRUE, results="hide"}  
-   
+![plot of chunk by_interval](figure/by_interval-1.png) 
+
+
+```r
     ### 2. Which 5-minute interval, on average across all the days, contains the maximum number of steps?
     max_step_interval <- as.numeric(arrange(stepsByInterval, desc(avgSteps))[1, 'interval'])
-    
 ```
     
-The 5-minute interval with maximum number of steps (on average across all the days in the dataset) is : `r max_step_interval`  
+The 5-minute interval with maximum number of steps (on average across all the days in the dataset) is : 835  
 
 
 ## Imputing missing values
 
 There are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data. So the missing values are imputed/replaced with a more appropriate value. The strategy used is to replace NA with the mean for that 5-minute interval. The plot, median, and mean are recalculated after filling in the missing values.  
     
-```{r missing_data, echo=TRUE, results="hide"}  
-   
+
+```r
     ### 1. Calculate the total number of missing values in the dataset (i.e. the total number of rows with NAs)
     missing_values <- as.numeric(myTable %>% filter(is.na(steps)) %>% summarize(missingCount=n()) )
-    
 ```
     
-Number of observations with missing data : `r missing_values`  
+Number of observations with missing data : 2304  
     
     
-```{r impute_data, echo=TRUE}  
-    
+
+```r
     ### 2. calculate Average/mean steps for each interval, to fill in the missing values later
     stepsByInterval <-
         myTable %>%
@@ -172,28 +200,29 @@ Number of observations with missing data : `r missing_values`
     ### 5. Make a histogram of the total number of steps taken each day 
     hist(stepsByDayCorrected$totalSteps, main='Total Number of Steps Taken Each Day', 
          xlab = 'Number of Steps (adjusted for missing values)')
-    
 ```
 
-```{r calc_mean2, echo=TRUE, results="hide"}  
+![plot of chunk impute_data](figure/impute_data-1.png) 
+
+
+```r
     ### 6. Calculate and report the mean of the total number of steps taken per day
     mean_steps2 <- format(round(mean(stepsByDayCorrected$totalSteps, na.rm = TRUE),2), nsmall = 2)
     
     ### y. Calculate and report the median of the total number of steps taken per day
     median_steps2 <- format(median(stepsByDayCorrected$totalSteps, na.rm = TRUE), nsmall=0)
-    
 ```
    
   
-The mean total number of steps taken per day, after replacing NA is : `r mean_steps2`  
-The median total number of steps taken per day, after replacing NA is : `r median_steps2`
+The mean total number of steps taken per day, after replacing NA is : 10765.64  
+The median total number of steps taken per day, after replacing NA is : 10762
     
 
 **Do these values differ from the estimates from the first part (before imputing data)?**  
-    Yes, the mean changed from `r meanSteps` to `r mean_steps2` and the median changed from `r medianSteps`  to `r median_steps2`. 
+    Yes, the mean changed from 10766.19 to 10765.64 and the median changed from 10765  to 10762. 
     
 **What is the impact of imputing missing data on the estimates of the total daily number of steps?**  
-    The total number of steps increased slighlty, as well as the frequency of number of steps (as seen in the second histogram). The difference is very small in this case because the number of missing records is relativly low (`r missing_values` out of 17568).
+    The total number of steps increased slighlty, as well as the frequency of number of steps (as seen in the second histogram). The difference is very small in this case because the number of missing records is relativly low (2304 out of 17568).
     
 
 
@@ -202,7 +231,8 @@ The median total number of steps taken per day, after replacing NA is : `r media
 The data set with filled-in values is used for this analysis. Based on the date a new factor is derived to identify whether it is a weekday or weekend. The data is then summarized by weekday/weekend and 5-minute interval to derive the average number of steps. Then a panel plot is created for weekend and weekday to see the activity pattern side by side. The plot is generated using the **lattice** package.
 
 
-```{r, echo=TRUE, results="hide", message=FALSE}
+
+```r
   ### Load lattice package for easy data manipulation
   if (! require("lattice")) {
     install.packages('lattice'); 
@@ -210,7 +240,8 @@ The data set with filled-in values is used for this analysis. Based on the date 
   }
 ```
 
-```{r , panel_plot, echo=TRUE}
+
+```r
     ### 1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" 
             # indicating whether a given date is a weekday or weekend
     correctedTable <- mutate(correctedTable, 
@@ -233,15 +264,17 @@ The data set with filled-in values is used for this analysis. Based on the date 
            type = "l",
            layout=(c(1,2))
     )
-    
 ```
+
+![plot of chunk panel_plot](figure/panel_plot-1.png) 
   
   
 ## Documentation:
 
 The analysis is documented in RMarkdown (Rmd) document and converted to html using **knitr** package.
 
-```{r cr_html, echo=TRUE, eval = FALSE}
+
+```r
   ### Load knitr package for converting this Rmd doc to html (install if needed)
   if (! require("knitr")) {
     install.packages('knitr'); 
@@ -250,8 +283,6 @@ The analysis is documented in RMarkdown (Rmd) document and converted to html usi
   
   # convert Rmd document to html  
   knit2html('PA1_template.Rmd')
-
-    
 ```
 
     
