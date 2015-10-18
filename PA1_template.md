@@ -156,10 +156,14 @@ To analyze the daily activity pattern, the dataset is summarized at the 5-minute
 
 ```r
     ### 2. Which 5-minute interval, on average across all the days, contains the maximum number of steps?
-    max_step_interval <- as.numeric(arrange(stepsByInterval, desc(avgSteps))[1, 'interval'])
+    max_step_interval <- as.numeric(arrange(stepsByInterval, desc(avgSteps))[1, 'interval']) 
+                            
+    # format interval to hh:mm
+    max_interval <- formatC(max_step_interval, width = 4, flag = "0")
+    max_interval <- paste(substr(max_interval, 1, 2), ":", substr(max_interval, 3, 4), sep = "")
 ```
     
-The 5-minute interval with maximum number of steps (on average across all the days in the dataset) is : 835  
+The 5-minute interval with maximum number of steps (on average across all the days in the dataset) is : 835 (08:35)    
 
 
 ## Imputing missing values
@@ -288,5 +292,5 @@ The analysis is documented in RMarkdown (Rmd) document and converted to html usi
     
 ## Conclusion:
 
-Based on the above analysis using the sample data set, the individuals in "quantified self" movement tend to be more active right before work on weekdays(around 7AM-9PM), however on wekends the activity could be scattered across the day time (7AM-7PM).
+Based on the above analysis using the sample data set, the individuals in "quantified self" movement tend to be more active right before work on weekdays(around 8AM-9AM), however on wekends the activity could be scattered across the day time (8AM-8PM).
 
